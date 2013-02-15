@@ -14,16 +14,12 @@ angular.module('ui.directives').directive('uiIf', [function () {
 
         var childElement;
         var childScope;
+        var last = null;
  
         scope.$watch(attr['uiIf'], function (newValue) {
-          if (childElement) {
-            childElement.remove();
-            childElement = undefined;
-          }
-          if (childScope) {
-            childScope.$destroy();
-            childScope = undefined;
-          }
+          if (!!newValue === last) return; // needs === to be sure first pass renders
+
+          last = !!newValue;
 
           if (newValue) {
             childScope = scope.$new();
@@ -31,6 +27,12 @@ angular.module('ui.directives').directive('uiIf', [function () {
               childElement = clone;
               element.after(clone);
             });
+          } else {
+            if (childElement)
+              childElement.remove();
+            if (childScope)
+              childScope.$destroy();
+            childScope = childElement = undefined;
           }
         });
       };

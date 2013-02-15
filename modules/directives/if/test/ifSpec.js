@@ -40,6 +40,16 @@ describe('ui-if', function () {
     expect(elm.children('div').length).toBe(1);
   });
 
+  it('should not fire unnecessarily', function () {
+    scope.hello = true;
+    makeIf('hello');
+    expect(elm.children().length).toBe(1);
+    scope.$apply('hello = 1');
+    scope.$apply('hello = 0');
+    scope.$apply('hello = false');
+    expect(elm.children().length).toBe(0);
+  });
+
   it('should play nice with other elements beside it', function () {
     scope.values = [1, 2, 3, 4];
     elm.append($compile(
