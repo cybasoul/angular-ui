@@ -8,18 +8,27 @@ angular.module('ui.directives').directive('uiReset', ['ui.config', function (uiC
   return {
     require: 'ngModel',
     link: function (scope, elm, attrs, ctrl) {
-      var aElement;
+      var aElement, linkResetValue, resetWrap;
+      if (attrs.uiReset) {
+        scope.$watch(attrs.uiReset, function(newVal){
+          linkResetValue = newVal;
+          elm.toggleClass('ui-resettable', linkResetValue === ctrl.$modelValue);
+        });
+      } else {
+        linkResetValue = resetValue;
+      }
       aElement = angular.element('<a class="ui-reset" />');
       elm.wrap('<span class="ui-resetwrap" />').after(aElement);
       aElement.bind('click', function (e) {
         e.preventDefault();
         scope.$apply(function () {
-          if (attrs.uiReset)
-            ctrl.$setViewValue(scope.$eval(attrs.uiReset));
-          else
-            ctrl.$setViewValue(resetValue);
+          ctrl.$setViewValue(linkResetValue);
           ctrl.$render();
         });
+      });
+      resetWrap = elm.parent('.ui-resetwrap');
+      scope.$watch(attrs.ngModel, function(newVal){
+        elm.toggleClass('ui-resettable', linkResetValue === newVal);
       });
     }
   };
